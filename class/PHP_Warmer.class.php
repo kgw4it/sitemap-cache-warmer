@@ -71,7 +71,7 @@ class PHP_Warmer
                 // Visit links
 				while ($continue) {
 					$ret = $this->process_urls($urls);
-					$counter += count($ret['doneUrls']))
+					$counter += count($ret['doneUrls']);
 					
 					foreach ($ret['doneUrls'] as $url) {
 						$doneUrls[$url] = true;
