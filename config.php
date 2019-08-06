@@ -1,4 +1,4 @@
 <?php
 return array(
-    'key' => '9f316c95a356aab49cf5e4fcf3418295' // Secret key to allow traversing sitemaps
+    'key' => $_ENV['SECRET_KEY'], // Secret key to allow traversing sitemaps
 );
