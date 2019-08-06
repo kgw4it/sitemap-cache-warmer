@@ -35,6 +35,10 @@ class PHP_Warmer
 			)
 			*/
         );
+	    
+	ini_set('SMTP', $this->config['SMTP_HOST']);
+	ini_set('smtp_port', $this->config['SMTP_PORT']); 
+	ini_set('sendmail_from', $this->config['SMTP_MAIL_FROM']);
     }
 
     function run()
