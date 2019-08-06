@@ -12,6 +12,8 @@ class PHP_Warmer
     var $from;
     var $to;
     var $urlProblems = array();
+	var $sitemapUrl;
+	var $domain;
 
     function __construct($config)
     {
@@ -24,6 +26,7 @@ class PHP_Warmer
         $this->sleep_time = (int)$this->get_parameter('sleep', 0);
         $this->from = (int)$this->get_parameter('from', 0);
         $this->to = (int)$this->get_parameter('to', false);
+		$this->sitemapUrl = $this->get_parameter('url');
         $this->response = new PHP_Warmer_Response();
         $this->context = stream_context_create(
             /****
@@ -36,9 +39,12 @@ class PHP_Warmer
 			*/
         );
 	    
-	ini_set('SMTP', $this->config['SMTP_HOST']);
-	ini_set('smtp_port', $this->config['SMTP_PORT']); 
-	ini_set('sendmail_from', $this->config['SMTP_MAIL_FROM']);
+		ini_set('SMTP', $this->config['SMTP_HOST']);
+		ini_set('smtp_port', $this->config['SMTP_PORT']); 
+		ini_set('sendmail_from', $this->config['SMTP_MAIL_FROM']);
+		
+		$parsedUrl = parse_url($sitemap_url);
+		$this->domain = $parsedUrl['host'];
     }
 
     function run()
@@ -50,35 +56,40 @@ class PHP_Warmer
         if($this->authenticated_request())
         {
             // URL properly added in GET parameter
-            if(($sitemap_url = $this->get_parameter('url')) !== '')
+            if($this->sitemapUrl !== '')
             {
                 //Start timer
                 $timer = new PHP_Warmer_Timer();
                 $timer->start();
 
                 // Discover URL links
-                $urls = $this->process_sitemap($sitemap_url);
+				$doneUrls = [];
+                $urls = $this->process_sitemap($this->sitemapUrl);
                 sort($urls);
+				$continue = true;
 
                 // Visit links
-                foreach($urls as $url)
-                {
-                    if($this->from <= $counter &&
-                            (empty($this->to) || (!empty($this->to) && $this->to > $counter) )) {
-                        $url_content = @file_get_contents(trim($url),false,$this->context);
-
-                        // Prepare info about URLs with error
-                        if ($url_content === false && $this->config['reportProblematicUrls']) {
-                            $this->urlProblems[] = $url;
-                        }
-
-                        if(($this->sleep_time > 0))
-                            sleep($this->sleep_time);
-
-                        $this->response->set_visited_url($url);
-                    }
-                    $counter++;
-                }
+				while ($continue) {
+					$ret = $this->process_urls($urls);
+					$counter += count($ret['doneUrls']))
+					
+					foreach ($ret['doneUrls'] as $url) {
+						$doneUrls[$url] = true;
+						$this->response->set_visited_url($url);
+					}
+					
+					if (!empty($this->to) && $counter > $this->to) {
+						$continue = false;
+					} else if (count($ret['foundUrls'])) {
+						$urls = array_filter($ret['foundUrls'], function($foundUrl) {
+							return !isset($doneUrls[$foundUrl]);
+						}, ARRAY_FILTER_USE_KEY);
+					}
+					
+					if (empty($urls)) {
+						$continue = false;
+					}
+				}
 
                 //Stop timer
                 $timer->stop();
@@ -88,9 +99,9 @@ class PHP_Warmer
 
                 // Done!
                 if(sizeof($urls) > 0)
-                    $this->response->set_message("Processed sitemap: {$sitemap_url}");
+                    $this->response->set_message("Processed sitemap: {$this->sitemapUrl}");
                 else
-                    $this->response->set_message("Processed sitemap: {$sitemap_url} - but no URL:s were found", 'ERROR');
+                    $this->response->set_message("Processed sitemap: {$this->sitemapUrl} - but no URL:s were found", 'ERROR');
             }
             else
             {
@@ -107,6 +118,40 @@ class PHP_Warmer
         }
 
         $this->response->display();
+    }
+	
+    function process_urls($urls) {
+		$regexUrl = '/(http|https)\:\/\/' . str_replace('.', '\.', $this->domain) . '(\/\S*)?/';
+		$done = [];
+		$found = [];
+		foreach($urls as $url) {
+			if($this->from <= $counter && (empty($this->to) || (!empty($this->to) && $this->to > $counter) )) {
+				$url_content = @file_get_contents(trim($url),false,$this->context);
+
+				// Prepare info about URLs with error
+				if ($url_content === false && $this->config['reportProblematicUrls']) {
+					$this->urlProblems[] = $url;
+				} else {
+					// check for more urls in the response
+					$foundUrls = []
+					if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
+						foreach($foundUrls as $foundUrl) {
+							$found[$foundUrl] = true;
+						}
+					}
+				}
+				
+				$done[$url] = true;
+
+				if(($this->sleep_time > 0))
+					sleep($this->sleep_time);
+			}
+		}
+		
+		return [
+			'doneUrls' => array_keys($done),
+			'foundUrls' => array_keys($foundUrls),
+		];
     }
 
     function process_sitemap($url)
