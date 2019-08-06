@@ -135,7 +135,7 @@ class PHP_Warmer
 					// check for more urls in the response
 					$foundUrls = [];
 					if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
-						foreach($foundUrls as $foundUrl) {
+						foreach($foundUrls[0] as $foundUrl) {
 							$found[$foundUrl] = true;
 						}
 					}
