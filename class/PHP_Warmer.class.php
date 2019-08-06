@@ -43,7 +43,7 @@ class PHP_Warmer
 		ini_set('smtp_port', $this->config['SMTP_PORT']); 
 		ini_set('sendmail_from', $this->config['SMTP_MAIL_FROM']);
 		
-		$parsedUrl = parse_url($sitemap_url);
+		$parsedUrl = parse_url($this->sitemapUrl);
 		$this->domain = $parsedUrl['host'];
     }
 
@@ -121,7 +121,7 @@ class PHP_Warmer
     }
 	
     function process_urls($urls) {
-		$regexUrl = '/(http|https)\:\/\/' . str_replace('.', '\.', $this->domain) . '(\/\S*)?/';
+		$regexUrl = '/(http|https)\:\/\/' . str_replace('.', '\.', $this->domain) . '(\/[^<>"\'# ]*)?/';
 		$done = [];
 		$found = [];
 		foreach($urls as $url) {
@@ -150,7 +150,7 @@ class PHP_Warmer
 		
 		return [
 			'doneUrls' => array_keys($done),
-			'foundUrls' => array_keys($foundUrls),
+			'foundUrls' => array_keys($found),
 		];
     }
 
