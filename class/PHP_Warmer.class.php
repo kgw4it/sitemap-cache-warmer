@@ -133,7 +133,7 @@ class PHP_Warmer
 					$this->urlProblems[] = $url;
 				} else {
 					// check for more urls in the response
-					$foundUrls = []
+					$foundUrls = [];
 					if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
 						foreach($foundUrls as $foundUrl) {
 							$found[$foundUrl] = true;
