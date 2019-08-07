@@ -122,6 +122,7 @@ class PHP_Warmer
             try {
                 //Server settings
                 $mail->isSMTP();
+                $mail->SMTPAuth = false;
                 $mail->Host = $this->config['SMTP_HOST'];
                 $mail->Port = intval($this->config['SMTP_PORT']);
 
