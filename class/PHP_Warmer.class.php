@@ -158,7 +158,7 @@ class PHP_Warmer
         $done = [];
         $found = [];
         foreach($urls as $url) {
-            $url_content = @file_get_contents($url, false, $this->context);
+            $url_content = mb_convert_encoding(@file_get_contents($url, false, $this->context), 'HTML-ENTITIES', 'UTF-8');
 
             // Prepare info about URLs with error
             if ($url_content === false && $this->config['reportProblematicUrls']) {
