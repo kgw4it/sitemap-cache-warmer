@@ -79,10 +79,10 @@ class PHP_Warmer
 
                     if (!empty($this->to) && $counter > $this->to) {
                         $continue = false;
-                    } else if (count($ret['foundUrls'])) {
-                        $urls = array_filter($ret['foundUrls'], function($foundUrl) {
+                    } else {
+                        $urls = array_filter($ret['foundUrls'], function($index, $foundUrl) {
                             return !isset($doneUrls[$foundUrl]);
-                        }, ARRAY_FILTER_USE_KEY);
+                        });
                     }
 
                     if (empty($urls)) {
@@ -128,14 +128,6 @@ class PHP_Warmer
         $done = [];
         $found = [];
         foreach($urls as $url) {
-            if (!empty($this->to) && $counter > $this->to) {
-                break;
-            }
-
-            if(!empty($this->from) && $counter < $this->from) {
-                continue;
-	    }
-
             $url_content = @file_get_contents($url, false, $this->context);
 
             // Prepare info about URLs with error
@@ -157,7 +149,7 @@ class PHP_Warmer
                 sleep($this->sleep_time);
             }
         }
-		
+
         return [
             'doneUrls' => array_keys($done),
             'foundUrls' => array_keys($found),
