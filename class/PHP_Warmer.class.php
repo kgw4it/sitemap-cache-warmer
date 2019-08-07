@@ -116,6 +116,8 @@ class PHP_Warmer
             $this->response->set_message('Incorrect key', 'ERROR');
         }
 
+        $this->response->set_problem_urls($this->urlProblems);
+
         if ($this->config['reportProblematicUrls'] && count($this->urlProblems) > 0) {
             $mail = new PHPMailer(true);
 
