@@ -6,4 +6,5 @@ return array(
     'SMTP_HOST' => getenv('SMTP_HOST'),
     'SMTP_PORT' => getenv('SMTP_PORT'),
     'SMTP_MAIL_FROM' => getenv('SMTP_MAIL_FROM'),
+    'ignoreUrls' => explode("\n", getenv('IGNORE_URLS')),
 );
