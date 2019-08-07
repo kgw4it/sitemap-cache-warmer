@@ -101,18 +101,15 @@ class PHP_Warmer
                 $this->response->set_duration($timer->duration());
 
                 // Done!
-                if(sizeof($urls) > 0)
+                if($counter > 0) {
                     $this->response->set_message("Processed sitemap: {$this->sitemapUrl}");
-                else
+		} else {
                     $this->response->set_message("Processed sitemap: {$this->sitemapUrl} - but no URL:s were found", 'ERROR');
-            }
-            else
-            {
+		}
+            } else {
                 $this->response->set_message('Empty url parameter', 'ERROR');
             }
-        }
-        else
-        {
+        } else {
             $this->response->set_message('Incorrect key', 'ERROR');
         }
 
