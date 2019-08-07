@@ -80,7 +80,7 @@ class PHP_Warmer
                     if (!empty($this->to) && $counter > $this->to) {
                         $continue = false;
                     } else {
-                        $urls = array_filter($ret['foundUrls'], function($index, $foundUrl) {
+                        $urls = array_filter($ret['foundUrls'], function($foundUrl) {
                             return !isset($doneUrls[$foundUrl]);
                         });
                     }
