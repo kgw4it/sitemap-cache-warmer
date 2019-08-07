@@ -34,7 +34,7 @@ class PHP_Warmer
                                 'method' => 'GET',
                                 'header' => "User-Agent: Cache-Warmer/1.0\r\n",
                         ],
-                ],
+                ]
         );
 	    
         ini_set('SMTP', $this->config['SMTP_HOST']);
