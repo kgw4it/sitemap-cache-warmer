@@ -11,17 +11,17 @@ class PHP_Warmer
     var $context;
     var $from;
     var $to;
-    var $urlProblems = array();
+    var $urlProblems = [];
     var $sitemapUrl;
     var $domain;
 
     function __construct($config)
     {
         $this->config = array_merge(
-           array(
+           [
                // 'key' => 'default',
                'reportProblematicUrls' => false
-           ), $config
+           ], $config
         );
         $this->sleep_time = (int)$this->get_parameter('sleep', 0);
         $this->from = (int)$this->get_parameter('from', 0);
@@ -128,27 +128,33 @@ class PHP_Warmer
         $done = [];
         $found = [];
         foreach($urls as $url) {
-            if($this->from <= $counter && (empty($this->to) || (!empty($this->to) && $this->to > $counter) )) {
-    		$url_content = @file_get_contents($url, false, $this->context);
+            if (!empty($this->to) && $counter > $this->to) {
+                break;
+            }
 
-                // Prepare info about URLs with error
-                if ($url_content === false && $this->config['reportProblematicUrls']) {
-                    $this->urlProblems[] = $url;
-                } else {
-                    // check for more urls in the response
-                    $foundUrls = [];
-                    if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
-                        foreach($foundUrls[0] as $foundUrl) {
-                            $found[trim($foundUrl)] = true;
-                        }
+            if(!empty($this->from) && $counter < $this->from) {
+                continue;
+	    }
+
+            $url_content = @file_get_contents($url, false, $this->context);
+
+            // Prepare info about URLs with error
+            if ($url_content === false && $this->config['reportProblematicUrls']) {
+                $this->urlProblems[] = $url;
+            } else {
+                // check for more urls in the response
+                $foundUrls = [];
+                if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
+                    foreach($foundUrls[0] as $foundUrl) {
+                        $found[trim($foundUrl)] = true;
                     }
                 }
+            }
 
-                $done[$url] = true;
+            $done[$url] = true;
 
-                if(($this->sleep_time > 0)) {
-                    sleep($this->sleep_time);
-		}
+            if(($this->sleep_time > 0)) {
+                sleep($this->sleep_time);
             }
         }
 		
