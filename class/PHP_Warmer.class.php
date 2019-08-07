@@ -29,14 +29,12 @@ class PHP_Warmer
         $this->sitemapUrl = $this->get_parameter('url');
         $this->response = new PHP_Warmer_Response();
         $this->context = stream_context_create(
-            /****
-			UNCOMMENT THIS IF YOU USE AN HTTP LOGIN, COMMONLY USED ON TEST ENVS
-			array (
-				'http' => array (
-					'header' => 'Authorization: Basic ' . base64_encode("youruser:yourpassword")
-				)
-			)
-			*/
+                [
+                        'http' => [
+                                'method' => 'GET',
+                                'header' => "User-Agent: Cache-Warmer/1.0\r\n",
+                        ],
+                ],
         );
 	    
         ini_set('SMTP', $this->config['SMTP_HOST']);
@@ -131,7 +129,7 @@ class PHP_Warmer
         $found = [];
         foreach($urls as $url) {
             if($this->from <= $counter && (empty($this->to) || (!empty($this->to) && $this->to > $counter) )) {
-    		$url_content = @file_get_contents(trim($url),false,$this->context);
+    		$url_content = @file_get_contents($url, false, $this->context);
 
                 // Prepare info about URLs with error
                 if ($url_content === false && $this->config['reportProblematicUrls']) {
@@ -141,7 +139,7 @@ class PHP_Warmer
                     $foundUrls = [];
                     if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
                         foreach($foundUrls[0] as $foundUrl) {
-                            $found[$foundUrl] = true;
+                            $found[trim($foundUrl)] = true;
                         }
                     }
                 }
@@ -175,7 +173,7 @@ class PHP_Warmer
             {
                 foreach($sitemap->sitemap as $sub_sitemap)
                 {
-                    $sub_sitemap_url = (string)$sub_sitemap->loc;
+                    $sub_sitemap_url = trime((string)$sub_sitemap->loc);
                     $urls = array_merge($urls, $this->process_sitemap($sub_sitemap_url));
                     $this->response->log("Processed sub-sitemap: {$sub_sitemap_url}");
                 }
@@ -186,7 +184,7 @@ class PHP_Warmer
             {
                 foreach($sitemap->url as $single_url)
                 {
-                    $urls[] = (string)$single_url->loc;
+                    $urls[] = trim((string)$single_url->loc);
                 }
             }
 
