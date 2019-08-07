@@ -27,7 +27,7 @@ class PHP_Warmer_Response
 
     function display()
     {
-        if (PHP_SAPI !== 'cli') {
+        if (php_sapi_name() !== 'cli') {
             header('Content-Type: application/json');
         }
         echo (json_encode(array(
