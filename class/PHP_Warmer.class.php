@@ -142,6 +142,7 @@ class PHP_Warmer
 	
     function process_urls($urls) {
         $regexUrl = '/(http|https)\:\/\/' . str_replace('.', '\.', $this->domain) . '(\/[^<>"\'# ]*)?/';
+        $regexPathOnly = '/"\/([^<>"\'# ]+)?"/';
         $done = [];
         $found = [];
         foreach($urls as $url) {
@@ -156,6 +157,11 @@ class PHP_Warmer
                 if(preg_match_all($regexUrl, $url_content, $foundUrls)) {
                     foreach($foundUrls[0] as $foundUrl) {
                         $found[trim($foundUrl)] = true;
+                    }
+                }
+                if(preg_match_all($regexPathOnly, $url_content, $foundUrls)) {
+                    foreach($foundUrls[0] as $foundUrl) {
+                        $found[trim('https://' . $this->domain . '/' . $foundUrl)] = true;
                     }
                 }
             }
