@@ -179,7 +179,7 @@ class PHP_Warmer
             {
                 foreach($sitemap->sitemap as $sub_sitemap)
                 {
-                    $sub_sitemap_url = trime((string)$sub_sitemap->loc);
+                    $sub_sitemap_url = trim((string)$sub_sitemap->loc);
                     $urls = array_merge($urls, $this->process_sitemap($sub_sitemap_url));
                     $this->response->log("Processed sub-sitemap: {$sub_sitemap_url}");
                 }
