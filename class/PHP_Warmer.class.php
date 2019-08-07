@@ -172,7 +172,7 @@ class PHP_Warmer
                     }
                 }
                 if(preg_match_all($regexPathOnly, $url_content, $foundUrls)) {
-                    foreach($foundUrls[0] as $foundUrl) {
+                    foreach($foundUrls[1] as $foundUrl) {
                         $found[trim('https://' . $this->domain . '/' . $foundUrl)] = true;
                     }
                 }
