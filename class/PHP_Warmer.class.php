@@ -120,7 +120,7 @@ class PHP_Warmer
                 //Server settings
                 $mail->isSMTP();
                 $mail->Host = $this->config['SMTP_HOST'];
-                $mail->Port = parseInt($this->config['SMTP_PORT']);
+                $mail->Port = intval($this->config['SMTP_PORT']);
 
                 //Recipients
                 $mail->setFrom($this->config['SMTP_MAIL_FROM']);
