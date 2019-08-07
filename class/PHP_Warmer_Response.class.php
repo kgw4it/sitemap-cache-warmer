@@ -9,7 +9,8 @@ class PHP_Warmer_Response
     var $message;
     var $status;
     var $log;
-    var $visited_urls = array();
+    var $visited_urls = [];
+    var $problem_urls = [];
     var $duration;
     var $count;
 
@@ -17,7 +18,8 @@ class PHP_Warmer_Response
     {
         $this->set_message($message, $status);
         $this->log = array();
-        $this->visited_urls = array();
+        $this->visited_urls = [];
+        $this->problem_urls = [];
     }
 
     function log($entry)
@@ -37,6 +39,7 @@ class PHP_Warmer_Response
             'duration' => $this->duration,
             'log' => $this->log,
             'visited_urls' => $this->visited_urls,
+            'problem_urls' => $this->problem_urls,
         )));
     }
 
@@ -60,5 +63,10 @@ class PHP_Warmer_Response
     function set_duration($duration)
     {
         $this->duration = $duration;
+    }
+
+    function set_problem_urls($problem_urls)
+    {
+        $this->problem_urls = $problem_urls;
     }
 }
