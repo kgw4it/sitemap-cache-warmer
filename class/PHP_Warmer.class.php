@@ -67,7 +67,7 @@ class PHP_Warmer
                 $urls = $this->process_sitemap($this->sitemapUrl);
                 sort($urls);
                 $continue = true;
-                $rounds = 0
+                $rounds = 0;
 
                 // Visit links
                 while ($continue) {
