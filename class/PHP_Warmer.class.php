@@ -1,4 +1,8 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 /**
  * Class PHP_Warmer
  */
@@ -35,11 +39,7 @@ class PHP_Warmer
                                 'header' => "User-Agent: Cache-Warmer/1.0\r\n",
                         ],
                 ]
-        );
-	    
-        ini_set('SMTP', $this->config['SMTP_HOST']);
-        ini_set('smtp_port', $this->config['SMTP_PORT']); 
-        ini_set('sendmail_from', $this->config['SMTP_MAIL_FROM']);
+        ); 
 
         $parsedUrl = parse_url($this->sitemapUrl);
         $this->domain = $parsedUrl['host'];
@@ -114,7 +114,27 @@ class PHP_Warmer
         }
 
         if ($this->config['reportProblematicUrls'] && count($this->urlProblems) > 0) {
-            @mail($this->config['reportProblematicUrlsTo'], 'Warming cache ends with errors', "Those URLs cannot be warmed:\n" . implode("\n", $this->urlProblems));
+            $mail = new PHPMailer(true);
+
+            try {
+                //Server settings
+                $mail->isSMTP();
+                $mail->Host = $this->config['SMTP_HOST'];
+                $mail->Port = parseInt($this->config['SMTP_PORT']);
+
+                //Recipients
+                $mail->setFrom($this->config['SMTP_MAIL_FROM']);
+                $mail->addAddress($this->config['reportProblematicUrlsTo'], $this->config['reportProblematicUrlsTo']);
+
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'Cache-Warmer Errors';
+                $mail->Body    = '<p>Was not able to request the following URLs:</p><br>' . implode('<br>', $this->urlProblems) . '<br>';
+                $mail->AltBody = "Was not able to request the following URLs:\n" . implode("\n", $this->urlProblems) . "\n";
+
+                $mail->send();
+            } catch (Exception $e) {
+            }
         }
 
         $this->response->display();
