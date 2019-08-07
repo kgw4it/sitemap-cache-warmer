@@ -27,7 +27,9 @@ class PHP_Warmer_Response
 
     function display()
     {
-        header('Content-Type: application/json');
+        if (PHP_SAPI !== 'cli') {
+            header('Content-Type: application/json');
+        }
         echo (json_encode(array(
             'status' => $this->status,
             'message' => $this->message,
