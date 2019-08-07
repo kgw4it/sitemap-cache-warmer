@@ -24,7 +24,8 @@ class PHP_Warmer
         $this->config = array_merge(
            [
                // 'key' => 'default',
-               'reportProblematicUrls' => false
+               'reportProblematicUrls' => false,
+               'ignoreUrls' => [],
            ], $config
         );
         $this->sleep_time = (int)$this->get_parameter('sleep', 0);
@@ -62,7 +63,7 @@ class PHP_Warmer
 
                 // Discover URL links
                 $doneUrls = [];
-                $urls = $this->process_sitemap($this->sitemapUrl);
+                $urls = $this->cleanup_urls($this->process_sitemap($this->sitemapUrl));
                 sort($urls);
                 $continue = true;
                 $rounds = 0;
@@ -80,9 +81,11 @@ class PHP_Warmer
                     if (!empty($this->to) && $counter > $this->to) {
                         $continue = false;
                     } else {
-                        $urls = array_filter($ret['foundUrls'], function($foundUrl) use ($doneUrls) {
-                            return !isset($doneUrls[$foundUrl]);
-                        });
+                        $urls = $this->cleanup_urls(
+                            array_filter($ret['foundUrls'], function($foundUrl) use ($doneUrls) {
+                                return !isset($doneUrls[$foundUrl]);
+                            })
+                        );
                     }
 
                     if (empty($urls)) {
@@ -138,6 +141,13 @@ class PHP_Warmer
         }
 
         $this->response->display();
+    }
+
+    function cleanup_urls($urls) {
+        $ignoreUrls = $this->config['ignoreUrls'];
+        return array_filter($urls, function($url) use ($ignoreUrls) {
+            return !in_array($url, $ignoreUrls, true);
+        });
     }
 	
     function process_urls($urls) {
