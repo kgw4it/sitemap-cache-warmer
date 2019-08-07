@@ -32,15 +32,19 @@ class PHP_Warmer_Response
         if (php_sapi_name() !== 'cli') {
             header('Content-Type: application/json');
         }
-        echo (json_encode(array(
-            'status' => $this->status,
-            'message' => $this->message,
-            'count' => $this->count,
-            'duration' => $this->duration,
-            'log' => $this->log,
-            'visited_urls' => $this->visited_urls,
-            'problem_urls' => $this->problem_urls,
-        )));
+
+        echo json_encode(
+            [
+                'status' => $this->status,
+                'message' => $this->message,
+                'count' => $this->count,
+                'duration' => $this->duration,
+                'log' => $this->log,
+                'visited_urls' => $this->visited_urls,
+                'problem_urls' => $this->problem_urls,
+            ],
+            php_sapi_name() === 'cli' ? JSON_PRETTY_PRINT : 0
+        );
     }
 
     function set_message($message, $status = 'OK')
